@@ -1,4 +1,4 @@
-new DataTable('#example', {
+new DataTable('#data_table', {
     initComplete: function () {
         this.api()
             .columns()
