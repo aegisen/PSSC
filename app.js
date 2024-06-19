@@ -1,34 +1,98 @@
-new DataTable('#data_table', {
-    initComplete: function () {
-        this.api()
-            .columns()
-            .every(function (index) {
-                if (index != 1)
-                    {
-                        let column = this;
+
+$(document).ready(function() {
+  function cbDropdown(column) {
+    return $('<ul>', {
+      'class': 'cb-dropdown'
+    }).appendTo($('<div>', {
+      'class': 'cb-dropdown-wrap'
+    }).appendTo(column));
+
+  }
+
+  $('#data_table').DataTable({
+    columnDefs: [
+      {
+        targets: 0,
+        render: function (data, type, row) {
+          if (type === 'filter') {
+            if ( data.includes( 'href' ) ) {
+              return $(data).text();
+            }
+            return data;
+          }
+          return data;
+        }
+      }
+    ],
+    initComplete: function() {
+      this.api()
+      .columns()
+      .every(function(index) 
+      {
+        if (index != 1)
+            {
+                var column = this;
+                var ddmenu = cbDropdown($(column.header()))
+                  .on('change', ':checkbox', function() {
+                    var active;
+                    var vals = $(':checked', ddmenu).map(function(index, element) {
+                      active = true;
+                      return $.fn.dataTable.util.escapeRegex($(element).val());
+                    }).toArray().join('|');
         
-                        // Create select element
-                        let select = document.createElement('select');
-                        select.add(new Option(''));
-                        column.footer().replaceChildren(select);
+                    column
+                      .search(vals.length > 0 ? '^(' + vals + ')$' : '', true, false)
+                      .draw();
         
-                        // Apply listener for user change in value
-                        select.addEventListener('change', function () {
-                            column
-                                .search(select.value, {exact: true})
-                                .draw();
+                    // Highlight the current item if selected.
+                    if (this.checked) {
+                      $(this).closest('li').addClass('active');
+                    } else {
+                      $(this).closest('li').removeClass('active');
+                    }
+        
+                    // Highlight the current filter if selected.
+                    var active2 = ddmenu.parent().is('.active');
+                    if (active && !active2) {
+                      ddmenu.parent().addClass('active');
+                    } else if (!active && active2) {
+                      ddmenu.parent().removeClass('active');
+                    }
+                  });
+        
+                //. Keep track of the select options to not duplicate
+                var selectOptions = [];
+                column.data().unique().sort().each(function(d, j) {
+                  
+                  // Use jQuery to get the text if the cell is a link
+                  if ( d.includes( 'href' ) ) {
+                    d = $(d).text();
+                  }
+                  
+                  if ( ! selectOptions.includes( d ) ) {
+                    
+                    selectOptions.push( d );
+                    
+                    var // wrapped
+                    $label = $('<label>'),
+                        $text = $('<span>', {
+                          text: d
+                        }),
+                        $cb = $('<input>', {
+                          type: 'checkbox',
+                          value: d
                         });
         
-                        // Add list of options
-                        column
-                            .data()
-                            .unique()
-                            .sort()
-                            .each(function (d, j) {
-                                select.add(new Option(d));
-                            });
-                    }
-                
-            });
+                    $text.appendTo($label);
+                    $cb.appendTo($label);
+        
+                    ddmenu.append($('<li>').append($label));
+                  }
+                });
+            }
+       
+      });
     }
+  });
 });
+
