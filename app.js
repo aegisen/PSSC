@@ -29,7 +29,7 @@ $(document).ready(function() {
       .columns()
       .every(function(index) 
       {
-        if (index != 1)
+        if (index != 1 && index != 5)
             {
                 var column = this;
                 var ddmenu = cbDropdown($(column.header()))
@@ -90,6 +90,61 @@ $(document).ready(function() {
                   }
                 });
             }
+            if (index == 5)
+              {
+                var column = this;
+                var ddmenu = cbDropdown($(column.header()))
+                  .on('change', ':checkbox', function() {
+                    var active;
+                    var vals = $(':checked', ddmenu).map(function(index, element) {
+                      active = true;
+                      return $.fn.dataTable.util.escapeRegex($(element).val());
+                    }).toArray().join('|');
+      
+                    column
+                      .search(vals.length > 0 ? '\\b(' + vals + ')\\b' : '', true, false) // Regex search for exact matches
+                      .draw();
+      
+                    // Highlight the current item if selected
+                    if (this.checked) {
+                      $(this).closest('li').addClass('active');
+                    } else {
+                      $(this).closest('li').removeClass('active');
+                    }
+      
+                    // Highlight the current filter if selected
+                    var active2 = ddmenu.parent().is('.active');
+                    if (active && !active2) {
+                      ddmenu.parent().addClass('active');
+                    } else if (!active && active2) {
+                      ddmenu.parent().removeClass('active');
+                    }
+                  });
+      
+                var selectOptions = [];
+                column.data().unique().sort().each(function(d, j) {
+                  // Assuming 'd' contains comma-separated tags
+                  var tags = d.split(', ');
+                  tags.forEach(function(tag) {
+                    if (!selectOptions.includes(tag.trim())) {
+                      selectOptions.push(tag.trim());
+                      var $label = $('<label>'),
+                        $text = $('<span>', {
+                          text: tag.trim()
+                        }),
+                        $cb = $('<input>', {
+                          type: 'checkbox',
+                          value: tag.trim()
+                        });
+      
+                      $text.appendTo($label);
+                      $cb.appendTo($label);
+      
+                      ddmenu.append($('<li>').append($label));
+                    }
+                  });
+                });
+              }
        
       });
     }
