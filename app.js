@@ -1,4 +1,3 @@
-
 $(document).ready(function() {
   function cbDropdown(column) {
     return $('<ul>', {
@@ -10,6 +9,16 @@ $(document).ready(function() {
   }
 
   $('#data_table').DataTable({
+    bAutoWidth: false, 
+    aoColumns : [
+      { sWidth: '20%' }, //org
+      { sWidth: '10%' }, //filename
+      { sWidth: '12%' }, //year
+      { sWidth: '13%' }, //edition
+      { sWidth: '20%' }, //author
+      { sWidth: '25%' }, //tags
+    ],
+    responsive: true,
     columnDefs: [
       {
         targets: 0,
