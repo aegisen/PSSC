@@ -38,7 +38,7 @@ $(document).ready(function() {
       .columns()
       .every(function(index) 
       {
-        if (index != 1 && index != 5)
+        if (index != 1 && index != 5 && index != 4)
             {
                 var column = this;
                 var ddmenu = cbDropdown($(column.header()))
@@ -99,7 +99,7 @@ $(document).ready(function() {
                   }
                 });
             }
-            if (index == 5)
+            if (index == 5 || index == 4)
               {
                 var column = this;
                 var ddmenu = cbDropdown($(column.header()))
